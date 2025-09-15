@@ -1,2 +1,1 @@
-web: gunicorn Complice_Taches.wsgi --log-file -
-
+web: gunicorn complice_taches.wsgi --bind 0.0.0.0:$PORT
