@@ -1,1 +1,1 @@
-web: gunicorn Complice_Taches.backend.complice_taches.wsgi:application --bind 0.0.0.0:$PORT
+web: gunicorn backend.complice_taches.wsgi:application --bind 0.0.0.0:$PORT
