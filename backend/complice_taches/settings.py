@@ -76,7 +76,7 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgres://user:pass@host:port/dbname'),
+        default=os.environ.get('DATABASE_URL'),  # just use the env variable
         conn_max_age=600,
         ssl_require=True
     )
