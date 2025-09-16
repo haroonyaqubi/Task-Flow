@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
+from django.core.wsgi import get_wsgi_application
 
 # -------------------------------
 # Paths
@@ -71,13 +72,17 @@ WSGI_APPLICATION = 'complice_taches.wsgi.application'
 # -------------------------------
 # Database
 # -------------------------------
+import dj_database_url
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        default=os.environ.get('DATABASE_URL', 'postgres://user:pass@host:port/dbname'),
         conn_max_age=600,
         ssl_require=True
     )
 }
+
+
 
 # -------------------------------
 # Password validation
