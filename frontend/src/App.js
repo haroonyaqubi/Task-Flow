@@ -49,7 +49,7 @@ function App() {
               path="/taches"
               element={
                 <PrivateRoute>
-                  <Taches />
+                  <taches />
                 </PrivateRoute>
               }
             />
