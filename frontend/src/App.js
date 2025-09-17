@@ -9,8 +9,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Contact from "./pages/Contact";
 import Apropos from "./pages/Apropos";
-
-// Components
 import Navbar from "./pages/Navbar";
 import Footer from "./pages/Footer";
 
