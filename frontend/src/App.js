@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 // Pages
 import Accueil from "./pages/accueil";
-import Taches from "./pages/Taches";
+import Taches from "./pages/Taches";   // ✅ Fixed casing
 import AdminTaches from "./pages/AdminTaches";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -11,8 +11,8 @@ import Contact from "./pages/contact";
 import Apropos from "./pages/Apropos";
 
 // Components
-import Navbar from "./pages/Navbar";
-import Footer from "./pages/Footer";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 // Helper to check login
 const isLoggedIn = () => !!localStorage.getItem("access");
@@ -25,7 +25,7 @@ function PrivateRoute({ children }) {
 // Admin Route wrapper
 function AdminRoute({ children }) {
   const access = localStorage.getItem("access");
-  const isAdmin = localStorage.getItem("is_staff") === "true"; // store in login
+  const isAdmin = localStorage.getItem("is_staff") === "true"; // stored in login
   return access && isAdmin ? children : <Navigate to="/taches" replace />;
 }
 
