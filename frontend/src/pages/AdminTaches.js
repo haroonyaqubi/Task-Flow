@@ -1,5 +1,5 @@
 import React from "react";
-import Taches from "./Taches";
+import taches from "./taches";
 
 function AdminTaches() {
   // Pass `isAdmin` prop to enable delete buttons and admin privileges
