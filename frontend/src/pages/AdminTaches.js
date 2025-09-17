@@ -1,5 +1,5 @@
 import React from "react";
-import Taches from "./Taches"; // FIXED: match exact filename
+import Taches from "./Taches";
 
 function AdminTaches() {
   return <Taches isAdmin={true} />;
