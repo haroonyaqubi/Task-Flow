@@ -24,7 +24,7 @@ function PrivateRoute({ children }) {
 function AdminRoute({ children }) {
   const access = localStorage.getItem("access");
   const isAdmin = localStorage.getItem("is_staff") === "true"; // stored in login
-  return access && isAdmin ? children : <Navigate to="/taches" replace />;
+  return access && isAdmin ? children : <Navigate to="/Taches" replace />;
 }
 
 function App() {
@@ -35,16 +35,16 @@ function App() {
         <div className="flex-grow-1">
           <Routes>
             <Route path="/" element={<Accueil />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/apropos" element={<Apropos />} />
+            <Route path="/Contact" element={<Contact />} />
+            <Route path="/Apropos" element={<Apropos />} />
 
             {/* Auth Routes */}
-            <Route path="/login" element={isLoggedIn() ? <Navigate to="/taches" /> : <Login />} />
-            <Route path="/register" element={isLoggedIn() ? <Navigate to="/taches" /> : <Register />} />
+            <Route path="/login" element={isLoggedIn() ? <Navigate to="/Taches" /> : <Login />} />
+            <Route path="/register" element={isLoggedIn() ? <Navigate to="/Taches" /> : <Register />} />
 
             {/* Protected Routes */}
             <Route
-              path="/taches"
+              path="/Taches"
               element={
                 <PrivateRoute>
                   <Taches />
