@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 // Pages
 import Accueil from "./pages/accueil";
-import Taches from "./pages/taches";
+import Taches from "./pages/Taches";
 import AdminTaches from "./pages/AdminTaches";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -49,7 +49,7 @@ function App() {
               path="/taches"
               element={
                 <PrivateRoute>
-                  <taches />
+                  <Taches />
                 </PrivateRoute>
               }
             />
