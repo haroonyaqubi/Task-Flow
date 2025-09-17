@@ -11,8 +11,8 @@ import Contact from "./pages/Contact";
 import Apropos from "./pages/Apropos";
 
 // Components
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./pages/Navbar";
+import Footer from "./pages/Footer";
 
 // Helper to check login
 const isLoggedIn = () => !!localStorage.getItem("access");
