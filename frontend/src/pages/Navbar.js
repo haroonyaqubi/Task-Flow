@@ -32,9 +32,9 @@ function Navbar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item"><Link className="nav-link text-white" to="/">Accueil</Link></li>
-            <li className="nav-item"><Link className="nav-link text-white" to="/Taches">Taches</Link></li>
+            <li className="nav-item"><Link className="nav-link text-white" to="/taches">Taches</Link></li>
             <li className="nav-item"><Link className="nav-link text-white" to="/contact">Contact</Link></li>
-            <li className="nav-item"><Link className="nav-link text-white" to="/Apropos">A propos</Link></li>
+            <li className="nav-item"><Link className="nav-link text-white" to="/apropos">A propos</Link></li>
           </ul>
           <ul className="navbar-nav ms-auto">
             {!isLoggedIn && (

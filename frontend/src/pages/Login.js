@@ -41,7 +41,7 @@ function Login() {
       const { is_staff } = meResponse.data;
       localStorage.setItem("is_staff", is_staff);
 
-      navigate(is_staff ? "/admin-Taches" : "/Taches");
+      navigate(is_staff ? "/admin-taches" : "/taches");
     } catch (err) {
       console.error(err);
       setServerError("Nom d’utilisateur ou mot de passe invalide.");

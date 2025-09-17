@@ -10,9 +10,9 @@ function Footer() {
         <img src={logo} alt="Logo" width="60" height="60" className="mb-3" />
         <div className="mb-3 d-flex justify-content-center gap-4">
           <Link to="/" className="text-white text-decoration-none">Accueil</Link>
-          <Link to="/Taches" className="text-white text-decoration-none">Taches</Link>
+          <Link to="/taches" className="text-white text-decoration-none">Taches</Link>
           <Link to="/contact" className="text-white text-decoration-none">Contact</Link>
-          <Link to="/Apropos" className="text-white text-decoration-none">A propos</Link>
+          <Link to="/apropos" className="text-white text-decoration-none">A propos</Link>
         </div>
         <div className="mb-3 d-flex justify-content-center gap-4">
           <a href="https://facebook.com" className="text-white" target="_blank" rel="noreferrer">
