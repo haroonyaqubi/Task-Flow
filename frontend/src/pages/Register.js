@@ -12,13 +12,16 @@ function Register() {
     password: "",
     consentement_rgpd: false,
   });
+
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
     setServerError("");
   };
@@ -30,8 +33,7 @@ function Register() {
     if (!formData.last_name.trim()) newErrors.last_name = "Le nom est obligatoire.";
     if (!formData.email.trim()) newErrors.email = "L'email est obligatoire.";
     if (!formData.password.trim()) newErrors.password = "Le mot de passe est requis.";
-    if (!formData.consentement_rgpd)
-      newErrors.consentement_rgpd = "Vous devez accepter la politique de confidentialité.";
+    if (!formData.consentement_rgpd) newErrors.consentement_rgpd = "Vous devez accepter la politique de confidentialité.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -41,14 +43,18 @@ function Register() {
     if (!validate()) return;
 
     try {
-      setLoading(true);
-      await axiosInstance.post("user/register/", formData);
+      const response = await axiosInstance.post("/user/register/", formData);
       navigate("/login");
     } catch (err) {
-      console.error(err);
-      setServerError(err.response?.data?.error || "Échec de l'inscription");
-    } finally {
-      setLoading(false);
+      console.error(err.response?.data);
+      if (err.response?.data) {
+        setServerError(
+          err.response.data.error ||
+          Object.values(err.response.data).flat().join(" ")
+        );
+      } else {
+        setServerError("Échec de l'inscription");
+      }
     }
   };
 
@@ -56,11 +62,8 @@ function Register() {
     <div className="container d-flex justify-content-center align-items-center mt-5">
       <div className="card shadow p-4 bg-light mb-5" style={{ maxWidth: "500px", width: "100%" }}>
         <h3 className="text-center mb-4">S'inscrire</h3>
-
         {serverError && <div className="alert alert-danger">{serverError}</div>}
-
         <form onSubmit={handleSubmit} noValidate>
-          {/* Inputs */}
           {["username", "first_name", "last_name", "email", "password"].map((field) => (
             <div className="mb-3" key={field}>
               <label className="form-label">
@@ -77,7 +80,6 @@ function Register() {
             </div>
           ))}
 
-          {/* Consent */}
           <div className="form-check mb-3">
             <input
               type="checkbox"
@@ -92,19 +94,15 @@ function Register() {
                 politique de confidentialité
               </a>
             </label>
-            {errors.consentement_rgpd && (
-              <div className="text-danger">{errors.consentement_rgpd}</div>
-            )}
+            {errors.consentement_rgpd && <div className="text-danger">{errors.consentement_rgpd}</div>}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             className="btn btn-lg shadow w-100"
             style={{ backgroundColor: "#7C3AED", color: "white" }}
-            disabled={loading}
           >
-            {loading ? "Inscription..." : "S'inscrire"}
+            S'inscrire
           </button>
         </form>
       </div>
