@@ -2,12 +2,12 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
-import Accueil from "./pages/Accueil";
+import Accueil from "./pages/accueil";
 import Taches from "./pages/Taches";
 import AdminTaches from "./pages/AdminTaches";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Contact from "./pages/Contact";
+import Contact from "./pages/contact";
 import Apropos from "./pages/Apropos";
 import Navbar from "./pages/Navbar";
 import Footer from "./pages/Footer";
