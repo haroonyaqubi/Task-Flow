@@ -1,5 +1,4 @@
 import os
-import django_heroku
 from pathlib import Path
 from datetime import timedelta
 
@@ -149,6 +148,3 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Create staticfiles folder if it doesn’t exist
 os.makedirs(STATIC_ROOT, exist_ok=True)
-
-
-django_heroku.settings(locals())
