@@ -15,7 +15,7 @@ function Taches({ isAdmin = false }) {
 
   const token = localStorage.getItem("access");
 
-  const fetchTasks = async (url = "/tasks/") => {
+  const fetchTasks = async (url = "tasks/") => {
     if (!token) return;
     try {
       setLoading(true);
@@ -33,7 +33,6 @@ function Taches({ isAdmin = false }) {
     }
   };
 
-  // ✅ Hook is always called, fetching only if token exists
   useEffect(() => {
     if (token) fetchTasks();
   }, [token]);
@@ -42,7 +41,7 @@ function Taches({ isAdmin = false }) {
     e.preventDefault();
     if (!newTask.trim()) return;
     try {
-      await axiosInstance.post("/tasks/", { task: newTask });
+      await axiosInstance.post("tasks/", { task: newTask });
       setNewTask("");
       fetchTasks();
     } catch (err) {
@@ -54,7 +53,7 @@ function Taches({ isAdmin = false }) {
   const deleteTask = async (id) => {
     if (!window.confirm("Voulez-vous vraiment supprimer cette tâche ?")) return;
     try {
-      await axiosInstance.delete(`/tasks/${id}/`);
+      await axiosInstance.delete(`tasks/${id}/`);
       fetchTasks();
     } catch (err) {
       console.error(err);
@@ -75,7 +74,7 @@ function Taches({ isAdmin = false }) {
   const saveEdit = async () => {
     if (!editTaskText.trim() || !editingTask) return;
     try {
-      await axiosInstance.put(`/tasks/${editingTask.id}/`, {
+      await axiosInstance.put(`tasks/${editingTask.id}/`, {
         task: editTaskText,
         done: editingTask.done,
       });
@@ -89,7 +88,7 @@ function Taches({ isAdmin = false }) {
 
   const toggleDone = async (task) => {
     try {
-      await axiosInstance.patch(`/tasks/${task.id}/`, { done: !task.done });
+      await axiosInstance.patch(`tasks/${task.id}/`, { done: !task.done });
       fetchTasks();
     } catch (err) {
       console.error(err);

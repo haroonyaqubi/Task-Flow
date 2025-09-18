@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: "https://task-flow-b9oy.onrender.com/api/",  // ✅ use your deployed backend
   headers: {
     "Content-Type": "application/json",
     accept: "application/json",
@@ -12,7 +12,9 @@ const axiosInstance = axios.create({
 // Automatically attach token if exists
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("access");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
