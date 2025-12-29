@@ -77,9 +77,9 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'https://task-flow-backend-gd2m.onrender.com',
-    'http://localhost:3000',
-    'http://localhost:8000',
+    "https://task-flow-frontend-6x3i.onrender.com",  # frontend
+    "http://localhost:3000",                         # Local frontend
+    "https://task-flow-backend-gd2m.onrender.com",   # backend
 ]
 
 ROOT_URLCONF = 'complice_taches.urls'
