@@ -49,14 +49,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# ✅ UPDATED: Remove CORS when Django serves React
+# CORS_ALLOWED_ORIGINS = [
+#     "https://task-flow-b9oy.onrender.com",  # deployed frontend
+#     "http://localhost:3000",                 # Local development
+# ]
+# CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'complice_taches.urls'
 
+# ✅ UPDATED: Tell Django where to find React's index.html
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'frontend' / 'build'],  # ✅ CRITICAL: Add this
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,19 +77,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'complice_taches.wsgi.application'
 
 # -------------------------------
-# Database
+# Database - UPDATED FIX
 # -------------------------------
-import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),  # just use the env variable
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+# Get DATABASE_URL from environment
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-
+if DATABASE_URL:
+    # Production: Use PostgreSQL from DATABASE_URL (Render provides this)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+    print("✅ Using PostgreSQL database from DATABASE_URL")
+else:
+    # Development: Use SQLite locally
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    print("✅ Using SQLite database for local development")
 
 # -------------------------------
 # Password validation
@@ -130,21 +148,32 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,           # ✅ Important for security
+    'BLACKLIST_AFTER_ROTATION': True,        # ✅ Important for security
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 # -------------------------------
-# Email
+# Email - SIMPLIFIED FOR LOCAL
 # -------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('mharoonyaqubi@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('dftu nhfr ieug ixbw')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# For local development, use console email backend
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    print("✅ Using console email backend for development")
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Create staticfiles folder if it doesn’t exist
+# Create staticfiles folder if it doesn't exist
 os.makedirs(STATIC_ROOT, exist_ok=True)

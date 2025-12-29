@@ -9,6 +9,9 @@ function Taches({ isAdmin = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ✅ ADDED: Filter state
+  const [filter, setFilter] = useState('all'); // 'all', 'completed', 'pending'
+
   const [nextUrl, setNextUrl] = useState(null);
   const [prevUrl, setPrevUrl] = useState(null);
   const [count, setCount] = useState(0);
@@ -46,7 +49,7 @@ function Taches({ isAdmin = false }) {
       fetchTasks();
     } catch (err) {
       console.error(err);
-      setError("Erreur lors de l’ajout.");
+      setError("Erreur lors de l'ajout.");
     }
   };
 
@@ -96,14 +99,25 @@ function Taches({ isAdmin = false }) {
     }
   };
 
-  if (!token) return <p>Vous devez être connecté pour voir vos tâches.</p>;
+  if (!token) return <p className="text-center mt-5">Vous devez être connecté pour voir vos tâches.</p>;
 
   return (
     <div className="container mt-5">
-      <h3 className="mb-3">Mes Tâches</h3>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {loading && <p>Chargement...</p>}
+      <h3 className="mb-3">{isAdmin ? "Tâches Administrateur" : "Mes Tâches"}</h3>
 
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      {/* ✅ ADDED: Loading spinner */}
+      {loading && (
+        <div className="text-center my-4">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Chargement...</span>
+          </div>
+          <p className="mt-2">Chargement des tâches...</p>
+        </div>
+      )}
+
+      {/* Add task form */}
       <form onSubmit={addTask} className="d-flex mb-3">
         <input
           type="text"
@@ -111,18 +125,59 @@ function Taches({ isAdmin = false }) {
           placeholder="Nouvelle tâche"
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
+          disabled={loading}
         />
         <button
           type="submit"
           className="btn"
           style={{ backgroundColor: "#7C3AED", color: "white" }}
+          disabled={loading}
         >
-          Ajouter
+          {loading ? "Ajout..." : "Ajouter"}
         </button>
       </form>
 
+      {/* ✅ ADDED: Filter buttons */}
+      <div className="btn-group mb-3" role="group">
+        <button
+          className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('all')}
+          disabled={loading}
+        >
+          Toutes
+        </button>
+        <button
+          className={`btn ${filter === 'pending' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('pending')}
+          disabled={loading}
+        >
+          En attente
+        </button>
+        <button
+          className={`btn ${filter === 'completed' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('completed')}
+          disabled={loading}
+        >
+          Terminées
+        </button>
+      </div>
+
+      {/* Task list */}
+      {!loading && tasks.length === 0 && (
+        <div className="alert alert-info">
+          Aucune tâche trouvée. Ajoutez votre première tâche !
+        </div>
+      )}
+
       <ul className="list-group">
-        {tasks.map((task) => (
+        {tasks
+          .filter(task => {
+            if (filter === 'all') return true;
+            if (filter === 'completed') return task.done;
+            if (filter === 'pending') return !task.done;
+            return true;
+          })
+          .map((task) => (
           <li
             key={task.id}
             className="list-group-item d-flex justify-content-between align-items-center"
@@ -133,20 +188,23 @@ function Taches({ isAdmin = false }) {
                 className="form-control me-3"
                 value={editTaskText}
                 onChange={(e) => setEditTaskText(e.target.value)}
+                disabled={loading}
               />
             ) : (
               <span style={{ textDecoration: task.done ? "line-through" : "none" }}>
-                {task.task} {task.done && <span className="badge bg-success ms-2">Terminée</span>}
+                {task.task}
+                {task.done && <span className="badge bg-success ms-2">Terminée</span>}
+                {!task.done && <span className="badge bg-warning ms-2 text-dark">En attente</span>}
               </span>
             )}
 
             <div>
               {editingTask?.id === task.id ? (
                 <>
-                  <button className="btn btn-sm btn-success me-2" onClick={saveEdit}>
+                  <button className="btn btn-sm btn-success me-2" onClick={saveEdit} disabled={loading}>
                     Sauvegarder
                   </button>
-                  <button className="btn btn-sm btn-secondary me-2" onClick={cancelEditing}>
+                  <button className="btn btn-sm btn-secondary me-2" onClick={cancelEditing} disabled={loading}>
                     Annuler
                   </button>
                 </>
@@ -155,14 +213,15 @@ function Taches({ isAdmin = false }) {
                   <button
                     className={`btn btn-sm me-2 ${task.done ? "btn-warning" : "btn-success"}`}
                     onClick={() => toggleDone(task)}
+                    disabled={loading}
                   >
                     {task.done ? "En attente" : "Terminer"}
                   </button>
-                  <button className="btn btn-sm btn-primary me-2" onClick={() => startEditing(task)}>
+                  <button className="btn btn-sm btn-primary me-2" onClick={() => startEditing(task)} disabled={loading}>
                     Modifier
                   </button>
                   {isAdmin && (
-                    <button className="btn btn-sm btn-danger" onClick={() => deleteTask(task.id)}>
+                    <button className="btn btn-sm btn-danger" onClick={() => deleteTask(task.id)} disabled={loading}>
                       Supprimer
                     </button>
                   )}
@@ -173,25 +232,28 @@ function Taches({ isAdmin = false }) {
         ))}
       </ul>
 
-      <div className="d-flex justify-content-between align-items-center mt-3 mb-3">
-        <button
-          className="btn"
-          style={{ backgroundColor: "#7C3AED", color: "white" }}
-          onClick={() => prevUrl && fetchTasks(prevUrl)}
-          disabled={!prevUrl}
-        >
-          Précédent
-        </button>
-        <span>{count} tâches au total</span>
-        <button
-          className="btn"
-          style={{ backgroundColor: "#7C3AED", color: "white" }}
-          onClick={() => nextUrl && fetchTasks(nextUrl)}
-          disabled={!nextUrl}
-        >
-          Suivant
-        </button>
-      </div>
+      {/* Pagination */}
+      {!loading && tasks.length > 0 && (
+        <div className="d-flex justify-content-between align-items-center mt-3 mb-3">
+          <button
+            className="btn"
+            style={{ backgroundColor: "#7C3AED", color: "white" }}
+            onClick={() => prevUrl && fetchTasks(prevUrl)}
+            disabled={!prevUrl || loading}
+          >
+            Précédent
+          </button>
+          <span>{count} tâches au total</span>
+          <button
+            className="btn"
+            style={{ backgroundColor: "#7C3AED", color: "white" }}
+            onClick={() => nextUrl && fetchTasks(nextUrl)}
+            disabled={!nextUrl || loading}
+          >
+            Suivant
+          </button>
+        </div>
+      )}
     </div>
   );
 }

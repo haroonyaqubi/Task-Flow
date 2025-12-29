@@ -49,6 +49,8 @@ function Apropos() {
             </div>
 
             {/* Rejoignez-nous */}
+
+
             <div
                 className="card bg-light text-dark mb-4 shadow rounded-3 p-4 text-center"
                 style={{ maxWidth: "700px" }}
@@ -60,7 +62,6 @@ function Apropos() {
                         centaines d’utilisateurs qui font confiance à Complice Tâches pour
                         rester organisés et atteindre leurs objectifs chaque jour.
                     </p>
-
                     <Link
                         to="/register"
                         className="btn mt-3 shadow fw-bold px-4 py-2"
@@ -68,8 +69,6 @@ function Apropos() {
                     >
                         Créer un compte
                     </Link>
-
-
 
                 </div>
             </div>

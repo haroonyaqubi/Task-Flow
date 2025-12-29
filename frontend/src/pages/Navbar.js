@@ -17,8 +17,7 @@ function Navbar() {
         <Link className="navbar-brand d-flex align-items-center text-white" to="/">
           <img src={logo} alt="Logo" width="40" height="40" className="me-2" />
         </Link>
-        <button
-          className="navbar-toggler bg-light"
+        <button className="navbar-toggler bg-light"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent"

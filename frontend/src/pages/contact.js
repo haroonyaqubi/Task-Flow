@@ -30,7 +30,7 @@ function Contact() {
     if (!formData.nom.trim()) newErrors.nom = "Le nom est requis.";
     if (!formData.prenom.trim()) newErrors.prenom = "Le prénom est requis.";
     if (!formData.email) {
-      newErrors.email = "L’email est requis.";
+      newErrors.email = "L'email est requis.";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Veuillez entrer un email valide.";
     }
@@ -69,12 +69,17 @@ function Contact() {
         cgu: false,
       });
       setErrors({});
+
     } catch (err) {
       console.error(err);
-      setServerMessage(
-        err.response?.data?.error ||
-          "Erreur réseau. Veuillez réessayer plus tard."
-      );
+      if (err.response?.status === 401) {
+        setServerMessage("Votre session a expiré. Veuillez vous reconnecter.");
+      } else {
+        setServerMessage(
+          err.response?.data?.error ||
+            "Erreur réseau. Veuillez réessayer plus tard."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -117,6 +122,7 @@ function Contact() {
                 value={formData.nom}
                 onChange={handleChange}
                 placeholder="Entrez votre nom"
+                disabled={loading}
               />
               {errors.nom && <small className="text-danger">{errors.nom}</small>}
             </div>
@@ -132,6 +138,7 @@ function Contact() {
                 value={formData.prenom}
                 onChange={handleChange}
                 placeholder="Entrez votre prénom"
+                disabled={loading}
               />
               {errors.prenom && (
                 <small className="text-danger">{errors.prenom}</small>
@@ -151,6 +158,7 @@ function Contact() {
               value={formData.email}
               onChange={handleChange}
               placeholder="exemple@email.com"
+              disabled={loading}
             />
             {errors.email && (
               <small className="text-danger">{errors.email}</small>
@@ -171,6 +179,7 @@ function Contact() {
               value={formData.telephone}
               onChange={handleChange}
               placeholder="Votre numéro de téléphone"
+              disabled={loading}
             />
             {errors.telephone && (
               <small className="text-danger">{errors.telephone}</small>
@@ -189,6 +198,7 @@ function Contact() {
               value={formData.message}
               onChange={handleChange}
               placeholder="Écrivez votre message..."
+              disabled={loading}
             />
             {errors.message && (
               <small className="text-danger">{errors.message}</small>
@@ -203,9 +213,10 @@ function Contact() {
               className={`form-check-input ${errors.cgu ? "is-invalid" : ""}`}
               checked={formData.cgu}
               onChange={handleChange}
+              disabled={loading}
             />
             <label htmlFor="cgu" className="form-check-label">
-              J’accepte les CGU et la politique de confidentialité
+              J'accepte les CGU et la politique de confidentialité
             </label>
             {errors.cgu && (
               <small className="text-danger d-block">{errors.cgu}</small>
@@ -218,7 +229,14 @@ function Contact() {
             style={{ backgroundColor: "#7C3AED", color: "white" }}
             disabled={loading}
           >
-            {loading ? "Envoi..." : "Envoyer"}
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Envoi en cours...
+              </>
+            ) : (
+              "Envoyer"
+            )}
           </button>
         </form>
       </div>

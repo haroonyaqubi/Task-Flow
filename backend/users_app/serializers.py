@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
-    """Serializer pour l'inscription avec consentement RGPD"""
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     consentement_rgpd = serializers.BooleanField(write_only=True, required=True)
 
@@ -26,3 +25,4 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
+
