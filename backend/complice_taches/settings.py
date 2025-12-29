@@ -15,7 +15,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+
+# ✅ FIXED: Handle ALLOWED_HOSTS properly
+ALLOWED_HOSTS_STR = os.environ.get('ALLOWED_HOSTS', '')
+if ALLOWED_HOSTS_STR:
+    ALLOWED_HOSTS = ALLOWED_HOSTS_STR.split(',')
+else:
+    # Default for development
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # -------------------------------
 # Applications
@@ -49,12 +56,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ✅ UPDATED: Remove CORS when Django serves React
-# CORS_ALLOWED_ORIGINS = [
-#     "https://task-flow-b9oy.onrender.com",  # deployed frontend
-#     "http://localhost:3000",                 # Local development
-# ]
-# CORS_ALLOW_CREDENTIALS = True
+# ✅ RE-ADDED: CORS settings (required for API to work)
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all for now
+CORS_ALLOW_CREDENTIALS = True
+
+# ✅ ADD: CSRF trusted origins for forms
+CSRF_TRUSTED_ORIGINS = [
+    'https://task-flow-backend-gd2m.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:8000',
+]
 
 ROOT_URLCONF = 'complice_taches.urls'
 
