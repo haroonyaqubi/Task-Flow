@@ -67,9 +67,10 @@ MIDDLEWARE = [
 # CORS settings - Allow frontend domains
 # Update this after frontend deploys
 CORS_ALLOWED_ORIGINS = [
-    "https://task-flow-backend-gd2m.onrender.com",  # Current backend
+    "https://task-flow-frontend-6x3i.onrender.com",  # Your deployed frontend
+    "https://task-flow-backend-gd2m.onrender.com",   # Your backend
     "http://localhost:3000",                         # Local frontend
-    "http://localhost:8000",                         # Local backend
+    "http://localhost:8000",                         # Local backend                  # Local backend
 ]
 
 # Allow credentials (cookies, authorization headers)
@@ -77,9 +78,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    "https://task-flow-frontend-6x3i.onrender.com",  # frontend
-    "http://localhost:3000",                         # Local frontend
-    "https://task-flow-backend-gd2m.onrender.com",   # backend
+    'https://task-flow-frontend-6x3i.onrender.com',  # Add this
+    'https://task-flow-backend-gd2m.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:8000',
 ]
 
 ROOT_URLCONF = 'complice_taches.urls'
