@@ -16,13 +16,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# ✅ FIXED: Handle ALLOWED_HOSTS properly
+# Handle ALLOWED_HOSTS properly
 ALLOWED_HOSTS_STR = os.environ.get('ALLOWED_HOSTS', '')
 if ALLOWED_HOSTS_STR:
     ALLOWED_HOSTS = ALLOWED_HOSTS_STR.split(',')
 else:
-    # Default for development
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Add your Render domain automatically
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Also add your specific domain
+if 'task-flow-backend-gd2m.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('task-flow-backend-gd2m.onrender.com')
 
 # -------------------------------
 # Applications
@@ -46,7 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,11 +64,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ✅ RE-ADDED: CORS settings (required for API to work)
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all for now
+# CORS settings - Allow frontend domains
+# Update this after frontend deploys
+CORS_ALLOWED_ORIGINS = [
+    "https://task-flow-backend-gd2m.onrender.com",  # Current backend
+    "http://localhost:3000",                         # Local frontend
+    "http://localhost:8000",                         # Local backend
+]
+
+# Allow credentials (cookies, authorization headers)
 CORS_ALLOW_CREDENTIALS = True
 
-# ✅ ADD: CSRF trusted origins for forms
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     'https://task-flow-backend-gd2m.onrender.com',
     'http://localhost:3000',
@@ -69,11 +84,13 @@ CSRF_TRUSTED_ORIGINS = [
 
 ROOT_URLCONF = 'complice_taches.urls'
 
-# ✅ UPDATED: Tell Django where to find React's index.html
+# -------------------------------
+# Templates - API ONLY (no React)
+# -------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'frontend' / 'build'],  # ✅ CRITICAL: Add this
+        'DIRS': [],  # Empty - we're not serving React
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,14 +105,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'complice_taches.wsgi.application'
 
 # -------------------------------
-# Database - UPDATED FIX
+# Database
 # -------------------------------
-
-# Get DATABASE_URL from environment
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # Production: Use PostgreSQL from DATABASE_URL (Render provides this)
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -105,7 +119,6 @@ if DATABASE_URL:
     }
     print("✅ Using PostgreSQL database from DATABASE_URL")
 else:
-    # Development: Use SQLite locally
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -133,11 +146,10 @@ USE_I18N = True
 USE_TZ = True
 
 # -------------------------------
-# Static files
+# Static files (Admin only)
 # -------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'build' / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # -------------------------------
@@ -159,24 +171,21 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,           # ✅ Important for security
-    'BLACKLIST_AFTER_ROTATION': True,        # ✅ Important for security
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 # -------------------------------
-# Email - SIMPLIFIED FOR LOCAL
+# Email
 # -------------------------------
-# For local development, use console email backend
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    print("✅ Using console email backend for development")
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.gmail.com'

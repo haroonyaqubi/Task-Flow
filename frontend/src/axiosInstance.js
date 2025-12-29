@@ -1,7 +1,8 @@
 import axios from "axios";
 
 // Use relative path when Django serves React
-const baseURL = "/api/";
+// ✅ Use your deployed backend URL
+const baseURL = "https://task-flow-backend-gd2m.onrender.com/api/";
 
 const axiosInstance = axios.create({
   baseURL: baseURL,
