@@ -188,3 +188,19 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 # Ensure staticfiles directory exists
 os.makedirs(STATIC_ROOT, exist_ok=True)
+
+# At the bottom of settings.py
+import os
+from django.contrib.auth.models import User
+
+if os.environ.get('RENDER'):  # Only on Render
+    try:
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser(
+                username='admin',
+                email='admin@example.com',
+                password='Admin@123!'
+            )
+            print("Admin user created on Render")
+    except:
+        print("⚠️ Could not create admin user")
