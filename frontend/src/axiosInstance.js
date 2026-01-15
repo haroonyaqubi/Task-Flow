@@ -1,18 +1,26 @@
+/**
+ * Axios HTTP Client Configuration
+ * Handles API communication with backend including JWT token management
+ */
+
 import axios from "axios";
 
-// Use relative path when Django serves React
-// ✅ Use your deployed backend URL
-const baseURL = "https://task-flow-backend-gd2m.onrender.com/api/";
+// Base URL for all API requests
+const BASE_URL = "https://task-flow-backend-gd2m.onrender.com/api/";
 
+// Create axios instance with default configuration
 const axiosInstance = axios.create({
-  baseURL: baseURL,
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
     accept: "application/json",
   },
 });
 
-// Automatically attach token if exists
+
+// REQUEST INTERCEPTOR
+
+// Automatically attach JWT token to requests
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("access");
   if (token) {
@@ -21,41 +29,39 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-refresh token when 401 error occurs
+// Handle token expiration and auto-refresh
 axiosInstance.interceptors.response.use(
     (response) => response,
+
     async (error) => {
       const originalRequest = error.config;
 
-      // If error is 401 (Unauthorized) and we haven't tried to refresh yet
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
 
         try {
           const refreshToken = localStorage.getItem("refresh");
 
-          // Attempt to refresh the token
+          // Attempt to refresh access token
           const response = await axios.post(
-              `${baseURL}token/refresh/`,
+              `${BASE_URL}token/refresh/`,
               { refresh: refreshToken }
           );
 
-          // Update the access token
+          // Update access token in localStorage
           localStorage.setItem("access", response.data.access);
 
-          // Update the authorization header
+          // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
-
-          // Retry the original request
           return axiosInstance(originalRequest);
 
         } catch (refreshError) {
-          // If refresh fails, clear tokens and redirect to login
+          // Token refresh failed - clear all auth data
           localStorage.removeItem("access");
           localStorage.removeItem("refresh");
           localStorage.removeItem("is_staff");
 
-          // Redirect to login page
+          // Redirect to login page if not already there
           if (window.location.pathname !== "/login") {
             window.location.href = "/login";
           }
@@ -63,10 +69,13 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(refreshError);
         }
       }
-
-      // For other errors, just reject
       return Promise.reject(error);
     }
 );
 
+// Export the configured axios instance
 export default axiosInstance;
+
+
+
+

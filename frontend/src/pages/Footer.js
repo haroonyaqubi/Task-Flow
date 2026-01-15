@@ -2,17 +2,23 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../images/logo.png';
 
+// Footer component - appears on every page
 function Footer() {
   return (
     <footer style={{ backgroundColor: '#7C3AED' }} className="text-white mt-auto pt-2">
       <div className="container text-center">
+        {/* Logo */}
         <img src={logo} alt="Logo" width="60" height="60" className="mb-3" />
+
+        {/* Navigation links */}
         <div className="mb-3 d-flex justify-content-center gap-4">
           <Link to="/" className="text-white text-decoration-none">Accueil</Link>
           <Link to="/taches" className="text-white text-decoration-none">Tâches</Link>
           <Link to="/contact" className="text-white text-decoration-none">Contact</Link>
           <Link to="/apropos" className="text-white text-decoration-none">À propos</Link>
         </div>
+
+        {/* Social media icons */}
         <div className="mb-3 d-flex justify-content-center gap-4">
           <a href="https://facebook.com" className="text-white" target="_blank" rel="noreferrer">
             <i className="bi bi-facebook fs-4"></i>
@@ -27,7 +33,10 @@ function Footer() {
             <i className="bi bi-instagram fs-4"></i>
           </a>
         </div>
+
         <hr className="border-light" />
+
+        {/* Copyright */}
         <p className="mb-0 pb-3">© {new Date().getFullYear()} Task Flow — Tous droits réservés.</p>
       </div>
     </footer>

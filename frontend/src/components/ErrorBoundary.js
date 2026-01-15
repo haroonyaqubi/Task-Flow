@@ -3,27 +3,36 @@ import React from 'react';
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false, error: null, errorInfo: null };
+        // Track if there's an error and store error details
+        this.state = {
+            hasError: false,
+            error: null,
+            errorInfo: null
+        };
     }
 
+    // This runs when an error is thrown
     static getDerivedStateFromError(error) {
         return { hasError: true };
     }
 
     componentDidCatch(error, errorInfo) {
+        // Save error details to state
         this.setState({
             error: error,
             errorInfo: errorInfo
         });
+        // Log error to console for debugging
         console.error("Error caught by ErrorBoundary:", error, errorInfo);
     }
-
+    // Reset the app when user clicks "Reload"
     handleReset = () => {
         this.setState({ hasError: false, error: null, errorInfo: null });
-        window.location.reload();
+        window.location.reload(); // Refresh the page
     }
-
     render() {
+        // If there's an error, show error message
+
         if (this.state.hasError) {
             return (
                 <div className="container mt-5">
@@ -60,8 +69,8 @@ class ErrorBoundary extends React.Component {
             );
         }
 
+        // If no error, render children normally
         return this.props.children;
     }
 }
-
 export default ErrorBoundary;

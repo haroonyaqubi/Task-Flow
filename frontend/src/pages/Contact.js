@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import axiosInstance from "../axiosInstance";
+import { validateEmail, validateRequired } from "../utils/validation";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorDisplay from "../components/ErrorDisplay";
 
 function Contact() {
+  // State for form data
   const [formData, setFormData] = useState({
     nom: "",
     prenom: "",
@@ -15,35 +19,53 @@ function Contact() {
   const [serverMessage, setServerMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     });
+    // Clear error for this field
     setErrors((prev) => ({ ...prev, [name]: "" }));
     setServerMessage("");
   };
 
+  // Validate form using shared validation functions
   const validate = () => {
     const newErrors = {};
-    if (!formData.nom.trim()) newErrors.nom = "Le nom est requis.";
-    if (!formData.prenom.trim()) newErrors.prenom = "Le prénom est requis.";
+
+    // Use shared validation functions with French messages
+    newErrors.nom = validateRequired(formData.nom, "nom");
+    newErrors.prenom = validateRequired(formData.prenom, "prénom");
+
+    // Custom email validation for French message
     if (!formData.email) {
       newErrors.email = "L'email est requis.";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Veuillez entrer un email valide.";
+    } else {
+      newErrors.email = "";
     }
-    if (!formData.telephone.trim())
-      newErrors.telephone = "Le téléphone est requis.";
-    if (!formData.message.trim())
-      newErrors.message = "Le message est requis.";
-    if (!formData.cgu) newErrors.cgu = "Vous devez accepter les CGU.";
+
+    newErrors.telephone = validateRequired(formData.telephone, "téléphone");
+    newErrors.message = validateRequired(formData.message, "message");
+
+    // Custom validation for checkbox
+    if (!formData.cgu) {
+      newErrors.cgu = "Vous devez accepter les CGU.";
+    }
+
+    // Remove empty error messages
+    Object.keys(newErrors).forEach(key => {
+      if (!newErrors[key]) delete newErrors[key];
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -52,6 +74,7 @@ function Contact() {
       setLoading(true);
       setServerMessage("");
 
+      // Send contact form data to backend
       const response = await axiosInstance.post("/contact/", {
         name: `${formData.prenom} ${formData.nom}`,
         email: formData.email,
@@ -59,6 +82,7 @@ function Contact() {
         message: `${formData.message}\n\nTéléphone: ${formData.telephone}`,
       });
 
+      // Show success message and reset form
       setServerMessage(response.data.success || "Message envoyé avec succès !");
       setFormData({
         nom: "",
@@ -97,18 +121,15 @@ function Contact() {
         </p>
 
         {serverMessage && (
-          <div
-            className={`alert ${
-              serverMessage.includes("succès")
-                ? "alert-success"
-                : "alert-danger"
-            }`}
-          >
-            {serverMessage}
-          </div>
+          <ErrorDisplay
+            error={serverMessage}
+            type={serverMessage.includes("succès") ? "success" : "danger"}
+            onClose={() => setServerMessage("")}
+          />
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* Name fields */}
           <div className="row mb-3">
             <div className="col-md-6">
               <label htmlFor="nom" className="form-label">
@@ -146,6 +167,7 @@ function Contact() {
             </div>
           </div>
 
+          {/* Email field */}
           <div className="mb-3">
             <label htmlFor="email" className="form-label">
               Adresse email
@@ -165,6 +187,7 @@ function Contact() {
             )}
           </div>
 
+          {/* Phone field */}
           <div className="mb-3">
             <label htmlFor="telephone" className="form-label">
               Téléphone
@@ -186,6 +209,7 @@ function Contact() {
             )}
           </div>
 
+          {/* Message field */}
           <div className="mb-3">
             <label htmlFor="message" className="form-label">
               Message
@@ -205,6 +229,7 @@ function Contact() {
             )}
           </div>
 
+          {/* Terms checkbox */}
           <div className="mb-3 form-check">
             <input
               type="checkbox"
@@ -223,21 +248,19 @@ function Contact() {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-lg shadow w-100"
-            style={{ backgroundColor: "#7C3AED", color: "white" }}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Envoi en cours...
-              </>
-            ) : (
-              "Envoyer"
-            )}
-          </button>
+          {/* Submit button - show spinner if loading */}
+          {loading ? (
+            <LoadingSpinner text="Envoi en cours..." />
+          ) : (
+            <button
+              type="submit"
+              className="btn btn-lg shadow w-100"
+              style={{ backgroundColor: "#7C3AED", color: "white" }}
+              disabled={loading}
+            >
+              Envoyer
+            </button>
+          )}
         </form>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Home page component
 function Accueil() {
     return (
         <div className="container mt-5">
@@ -20,14 +21,14 @@ function Accueil() {
                 ))}
             </div>
 
+            {/* Main content */}
             <div className="row mt-5">
                 <div className="col-md-10 offset-md-1 text-center">
                     <p className="h1 text-primary">
-                        Rapide et facile à utiliser, à tout moment, n’importe où !
+                        Rapide et facile à utiliser, à tout moment, n'importe où !
                     </p>
                     <p className="h2 mt-3">Planifie ta meilleure journée !</p>
                     <p className="h5">Gardons une trace de tes tâches en un seul endroit !</p>
-
                     <Link
                         to="/taches"
                         className="btn btn-lg mt-3 mb-3 shadow text-white"
@@ -35,8 +36,6 @@ function Accueil() {
                     >
                         Commençons
                     </Link>
-
-
                 </div>
             </div>
         </div>
