@@ -11,9 +11,8 @@ function Taches({ isAdmin = false }) {
   const [editTaskText, setEditTaskText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [renderKey, setRenderKey] = useState(0); // 🔥 ADD THIS LINE
 
-  // USE CUSTOM HOOK: Filter tasks
+  //USE CUSTOM HOOK: Filter tasks
   const { filter, setFilter, filteredTasks } = useTaskFilter(tasks);
 
   // Get token from localStorage
@@ -50,22 +49,16 @@ function Taches({ isAdmin = false }) {
       const response = await axiosInstance.post("tasks/", { task: newTask });
       const newTaskObj = response.data;
 
-      // 🔥 FIX: Update state IMMEDIATELY
       setTasks(prev => {
-        // Create brand new array
-        return [newTaskObj, ...prev];
+        const updated = [newTaskObj, ...prev];
+        console.log("Updated tasks list:", updated);
+        return updated;
       });
 
       //Clear input
       setNewTask("");
 
-      // 🔥 ADD: Force re-render
-      setRenderKey(prev => prev + 1);
-
-      // 🔥 ADD: Quick refetch for Render DB sync
-      setTimeout(() => {
-        fetchTasks();
-      }, 200);
+      //removed: No fetchTasks call here!
 
     } catch (err) {
       console.error("Error:", err.response?.data || err);
@@ -124,159 +117,151 @@ function Taches({ isAdmin = false }) {
     }
   };
 
-  // 🔥 ADD: Debug log
-  console.log("Component render. Tasks:", tasks.length, "Filtered:", filteredTasks.length, "Key:", renderKey);
-
   // Show message if not logged in
   if (!token) return <p className="text-center mt-5">Vous devez être connecté pour voir vos tâches.</p>;
 
   return (
-      <div className="container mt-5" key={renderKey}> {/* 🔥 ADD key prop here */}
-        <h3 className="mb-3">{isAdmin ? "Tâches Administrateur" : "Mes Tâches"}</h3>
+    <div className="container mt-5">
+      <h3 className="mb-3">{isAdmin ? "Tâches Administrateur" : "Mes Tâches"}</h3>
 
-        {/* Admin information message */}
-        {isAdmin && (
-            <div className="alert alert-info mb-3">
-              <strong>Mode Administrateur :</strong> Vous pouvez voir toutes les tâches des utilisateurs.
-              Seuls les utilisateurs peuvent ajouter de nouvelles tâches.
-            </div>
-        )}
+      {/* Admin information message */}
+      {isAdmin && (
+        <div className="alert alert-info mb-3">
+          <strong>Mode Administrateur :</strong> Vous pouvez voir toutes les tâches des utilisateurs.
+          Seuls les utilisateurs peuvent ajouter de nouvelles tâches.
+        </div>
+      )}
 
-        {error && <ErrorDisplay error={error} onClose={() => setError("")} />}
+      {error && <ErrorDisplay error={error} onClose={() => setError("")} />}
 
-        {loading && <LoadingSpinner text="Chargement des tâches..." />}
+      {loading && <LoadingSpinner text="Chargement des tâches..." />}
 
-        {/* Add task form - only show for normal user not admin */}
-        {!isAdmin && (
-            <form onSubmit={addTask} className="d-flex mb-3">
+      {/* Add task form - only show for normal user not admin */}
+      {!isAdmin && (
+        <form onSubmit={addTask} className="d-flex mb-3">
+          <input
+            type="text"
+            className="form-control me-2"
+            placeholder="Nouvelle tâche"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            className="btn"
+            style={{ backgroundColor: "#7C3AED", color: "white" }}
+            disabled={loading}
+          >
+            {loading ? "Ajout..." : "Ajouter"}
+          </button>
+        </form>
+      )}
+
+      {/* Filter buttons */}
+      <div className="btn-group mb-3" role="group">
+        <button
+          className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('all')}
+          disabled={loading}
+        >
+          Toutes
+        </button>
+        <button
+          className={`btn ${filter === 'pending' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('pending')}
+          disabled={loading}
+        >
+          En attente
+        </button>
+        <button
+          className={`btn ${filter === 'completed' ? 'btn-primary' : 'btn-outline-primary'}`}
+          onClick={() => setFilter('completed')}
+          disabled={loading}
+        >
+          Terminées
+        </button>
+      </div>
+
+      {/* Show message if no tasks */}
+      {!loading && tasks.length === 0 && (
+        <div className="alert alert-info">
+          {isAdmin ? "Aucune tâche trouvée dans le système." : "Aucune tâche trouvée. Ajoutez votre première tâche !"}
+        </div>
+      )}
+
+      {/* Tasks list - use filteredTasks from custom hook */}
+      <ul className="list-group">
+        {filteredTasks.map((task) => (
+          <li
+            key={task.id}
+            className="list-group-item d-flex justify-content-between align-items-center"
+          >
+            {/* Task content - shows edit field if editing */}
+            {editingTask?.id === task.id ? (
               <input
-                  type="text"
-                  className="form-control me-2"
-                  placeholder="Nouvelle tâche"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  disabled={loading}
+                type="text"
+                className="form-control me-3"
+                value={editTaskText}
+                onChange={(e) => setEditTaskText(e.target.value)}
+                disabled={loading}
               />
-              <button
-                  type="submit"
-                  className="btn"
-                  style={{ backgroundColor: "#7C3AED", color: "white" }}
-                  disabled={loading}
-              >
-                {loading ? "Ajout..." : "Ajouter"}
-              </button>
-            </form>
-        )}
-
-        {/* Filter buttons */}
-        <div className="btn-group mb-3" role="group">
-          <button
-              className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setFilter('all')}
-              disabled={loading}
-          >
-            Toutes
-          </button>
-          <button
-              className={`btn ${filter === 'pending' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setFilter('pending')}
-              disabled={loading}
-          >
-            En attente
-          </button>
-          <button
-              className={`btn ${filter === 'completed' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setFilter('completed')}
-              disabled={loading}
-          >
-            Terminées
-          </button>
-        </div>
-
-        {/* Show message if no tasks */}
-        {!loading && tasks.length === 0 && (
-            <div className="alert alert-info">
-              {isAdmin ? "Aucune tâche trouvée dans le système." : "Aucune tâche trouvée. Ajoutez votre première tâche !"}
-            </div>
-        )}
-
-        {/* 🔥 ADD: Show counts for debugging */}
-        <div className="small text-muted mb-2">
-          Showing {filteredTasks.length} of {tasks.length} tasks
-        </div>
-
-        {/* Tasks list - use filteredTasks from custom hook */}
-        <ul className="list-group">
-          {filteredTasks.map((task) => (
-              <li
-                  key={task.id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                {/* Task content - shows edit field if editing */}
-                {editingTask?.id === task.id ? (
-                    <input
-                        type="text"
-                        className="form-control me-3"
-                        value={editTaskText}
-                        onChange={(e) => setEditTaskText(e.target.value)}
-                        disabled={loading}
-                    />
-                ) : (
-                    <div className="d-flex align-items-center">
+            ) : (
+              <div className="d-flex align-items-center">
                 <span style={{ textDecoration: task.done ? "line-through" : "none" }}>
                   {task.task}
                 </span>
-                      {/* Show status badge */}
-                      {task.done && <span className="badge bg-success ms-2">Terminée</span>}
-                      {!task.done && <span className="badge bg-warning ms-2 text-dark">En attente</span>}
-                    </div>
-                )}
+                {/* Show status badge */}
+                {task.done && <span className="badge bg-success ms-2">Terminée</span>}
+                {!task.done && <span className="badge bg-warning ms-2 text-dark">En attente</span>}
+              </div>
+            )}
 
-                {/* Task actions */}
-                <div>
-                  {editingTask?.id === task.id ? (
-                      // Editing mode buttons
-                      <>
-                        <button className="btn btn-sm btn-success me-2" onClick={saveEdit} disabled={loading}>
-                          Sauvegarder
-                        </button>
-                        <button className="btn btn-sm btn-secondary me-2" onClick={cancelEditing} disabled={loading}>
-                          Annuler
-                        </button>
-                      </>
-                  ) : (
-                      <>
-                        {/* Toggle done/pending button */}
-                        <button
-                            className={`btn btn-sm me-2 ${task.done ? "btn-warning" : "btn-success"}`}
-                            onClick={() => toggleDone(task)}
-                            disabled={loading}
-                        >
-                          {task.done ? "En attente" : "Terminer"}
-                        </button>
+            {/* Task actions */}
+            <div>
+              {editingTask?.id === task.id ? (
+                // Editing mode buttons
+                <>
+                  <button className="btn btn-sm btn-success me-2" onClick={saveEdit} disabled={loading}>
+                    Sauvegarder
+                  </button>
+                  <button className="btn btn-sm btn-secondary me-2" onClick={cancelEditing} disabled={loading}>
+                    Annuler
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Toggle done/pending button */}
+                  <button
+                    className={`btn btn-sm me-2 ${task.done ? "btn-warning" : "btn-success"}`}
+                    onClick={() => toggleDone(task)}
+                    disabled={loading}
+                  >
+                    {task.done ? "En attente" : "Terminer"}
+                  </button>
 
-                        {/* Edit button - only for regular users */}
-                        {!isAdmin && (
-                            <button className="btn btn-sm btn-primary me-2" onClick={() => startEditing(task)} disabled={loading}>
-                              Modifier
-                            </button>
-                        )}
-
-                        {/* Delete button - for BOTH users and admin */}
-                        <button
-                            className={`btn btn-sm ${isAdmin ? 'btn-danger' : 'btn-outline-danger'}`}
-                            onClick={() => deleteTask(task.id)}
-                            disabled={loading}
-                        >
-                          Supprimer
-                        </button>
-                      </>
+                  {/* Edit button - only for regular users */}
+                  {!isAdmin && (
+                    <button className="btn btn-sm btn-primary me-2" onClick={() => startEditing(task)} disabled={loading}>
+                      Modifier
+                    </button>
                   )}
-                </div>
-              </li>
-          ))}
-        </ul>
-      </div>
+
+                  {/* Delete button - for BOTH users and admin */}
+                  <button
+                    className={`btn btn-sm ${isAdmin ? 'btn-danger' : 'btn-outline-danger'}`}
+                    onClick={() => deleteTask(task.id)}
+                    disabled={loading}
+                  >
+                    Supprimer
+                  </button>
+                </>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
